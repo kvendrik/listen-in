@@ -58,6 +58,35 @@ function labelLooksLikeBlackHole(label: string): boolean {
   return compact.includes("blackhole") || /\bblack\s*hole\b/i.test(label);
 }
 
+/** Shown when BlackHole is missing; this CLI targets macOS only. */
+const BLACKHOLE_MACOS_SETUP = `This tool only supports macOS. For a separate **Speakers:** transcript, system audio must pass through BlackHole (a virtual input ffmpeg can record).
+
+1. Install the driver:
+   brew install blackhole-2ch
+
+2. Verify it is registered:
+   Open Audio MIDI Setup (Spotlight). In the sidebar you should see “BlackHole 2ch”. If it is missing, restart the Mac once after install or check that the driver was not blocked.
+
+3. Build a Multi-Output Device (so you still hear sound):
+   In Audio MIDI Setup, click + (bottom-left) → Create Multi-Output Device.
+   In the list, enable both “BlackHole 2ch” and your real output (e.g. “MacBook Pro Speakers”).
+   Name it something obvious, e.g. “Headphones + BlackHole”.
+
+4. Point macOS output at that aggregate:
+   System Settings → Sound → Output → choose the Multi-Output Device from step 3 — not “MacBook Pro Speakers” alone.
+
+Why step 4 matters: if output goes only to hardware speakers, apps never send audio to BlackHole, so the Speakers stream stays empty even though BlackHole is installed.
+
+When “BlackHole 2ch” appears in Audio MIDI Setup, run this CLI again.`;
+
+function indentLogBody(text: string): string {
+  return text
+    .trim()
+    .split("\n")
+    .map((line) => (line === "" ? "" : `    ${line}`))
+    .join("\n");
+}
+
 type CaptureMode =
   | { kind: "single"; device: string }
   | { kind: "dual"; mic: string; system: string };
@@ -139,9 +168,7 @@ async function checkDependencies(): Promise<void> {
       const raw = rawStderr.toLowerCase();
       return raw.includes("blackhole") || raw.includes("black hole");
     },
-    fix:
-      "brew install blackhole-2ch, open Audio MIDI Setup to confirm “BlackHole 2ch” appears, " +
-      "then set Sound output to a Multi-Output Device that includes BlackHole + your speakers (see transcribe.ts header).",
+    fix: BLACKHOLE_MACOS_SETUP,
     fatal: true,
   });
 
@@ -160,10 +187,12 @@ async function checkDependencies(): Promise<void> {
 
   spinner.stop("Dependencies checked");
 
-  for (const dep of warnings)
-    p.log.warn(`${dep.name} not found\n  → ${dep.fix}`);
-  for (const dep of failures)
-    p.log.error(`${dep.name} not found\n  → ${dep.fix}`);
+  for (const dep of warnings) {
+    p.log.warn(`${dep.name} not found:\n${indentLogBody(dep.fix)}`);
+  }
+  for (const dep of failures) {
+    p.log.error(`${dep.name} not found:\n${indentLogBody(dep.fix)}`);
+  }
 
   if (failures.length > 0) {
     p.outro("Install the missing dependencies above and re-run.");
@@ -376,7 +405,10 @@ async function promptCaptureMode(devices: AudioDevice[]): Promise<CaptureMode> {
   }
 
   // BlackHole not found — prompt the user to pick or type a device.
-  p.log.warn("BlackHole not found — install with: brew install blackhole-2ch");
+  p.log.warn(
+    "BlackHole did not appear in the device list ffmpeg sees. Setup on macOS:\n\n" +
+      indentLogBody(BLACKHOLE_MACOS_SETUP),
+  );
 
   const systemDevice =
     devices.length === 0
