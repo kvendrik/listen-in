@@ -1,6 +1,22 @@
-```
-> bunx -p @kvendrik/transcribe transcribe -o meeting.md
+# 🎙️ Transcribe
 
+Transcribe your meetings
+
+## Getting started
+
+First run the doctor to get all dependencies installed:
+
+```
+bunx -p @kvendrik/transcribe transcribe doctor
+```
+
+Then, transcribe your first meeting:
+
+```
+bunx -p @kvendrik/transcribe transcribe -o meeting.md
+```
+
+```
 ●  @kvendrik/transcriber
 
 ◆  Pick an audio device
@@ -24,6 +40,8 @@
 **Microphone:** First item is the Q2 priorities.
 
 **Speaker:** Can we also cover the infra migration?
+
+^ Ctrl
 
 ●  Saved → meeting.md
 ```
