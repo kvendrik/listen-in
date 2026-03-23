@@ -4,7 +4,8 @@ CLI to transcribe and summarize digital meetings without the use of bots
 
 ## How it works
 
-Transcription and cleaning up of transcriptions + summarization happens using a combination of [WhisperLive](https://github.com/collabora/WhisperLive), [BlackHole](https://github.com/existentialaudio/blackhole), and a LLM of your choosing (Qwen 3 4B or Sonnet 4.6 based on if you want to do it locally or not).
+1. `listenin transcribe` transcribes meetings by recording your microphone, capturing speaker sound using [BlackHole](https://github.com/existentialaudio/blackhole), and transcribing using [WhisperLive](https://github.com/collabora/WhisperLive)
+2. `listenin clean` cleans up and summarizes transcripts using a LLM (supports most popular LLM providers through [pi-mono](https://github.com/badlogic/pi-mono) + [Ollama](https://ollama.com/) for local models)
 
 ## How to use
 
@@ -17,7 +18,8 @@ bun install -g @kvendrik/listen-in
 # 2. Helps you set up the audio driver so the CLI can capture what others say when on
 listenin doctor
 
-# Change default mic, transcriptions location, LLM preference
+# Change transcriptions location & LLM preference
+# `./.transcriptions/` & Sonnet 4.6 by default
 listenin config
 
 # Transcribe a meeting
@@ -25,4 +27,8 @@ listenin transcribe
 
 # Clean and summarize the last transcription
 listenin clean last
+
+# examples of using different LLMs
+listenin config set llm ollama:qwen3:4b
+listenin config set llm openai:gpt-4.6
 ```

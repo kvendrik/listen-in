@@ -2,10 +2,12 @@
 
 import { Command } from "commander";
 import { join, resolve } from "node:path";
-import { listen, start, summarize, doctor } from "../src";
+import { listen, start, summarize, doctor, getConfig } from "../src";
 import { description, version } from "../package.json";
 import * as p from "@clack/prompts";
 import * as fs from "node:fs";
+
+const config = getConfig();
 
 const program = new Command("listenin")
   .description(description)
@@ -28,26 +30,89 @@ program
 program
   .command("config")
   .description("Configure defaults like model and output location")
-  .action(() => {
-    console.error(
-      "Config is not implemented yet. For now, use environment variables like WHISPER_LANG, WHISPER_PORT, WHISPER_USE_VAD, WHISPER_BATCH_INFERENCE (GPU), and WHISPER_FW_MODEL.",
-    );
-    process.exit(1);
+  .action(async () => {
+    console.log(config.get());
+  })
+  .addCommand(
+    new Command("set")
+      .description("Configure the LLM model")
+      .argument("<key>", "The LLM model to use")
+      .argument("<value>", "The LLM model to use")
+      .action(async ({ key, value }: { key: string; value: string }) => {
+        if (!(config.get() as any)[key]) {
+          console.error(`Invalid key: ${key}`);
+          process.exit(1);
+        }
+        config.set(key as any, value);
+        console.log(`"${key}" set to "${value}"`);
+      }),
+  );
+
+program
+  .command("last")
+  .description("Get the last transcript")
+  .action(async () => {
+    const lastTranscript = getLastTranscript();
+    if (!lastTranscript) {
+      console.log(`No transcripts found at ${config.get().outputDir}`);
+      process.exit(1);
+    }
+    console.log(lastTranscript);
   });
 
 program
   .command("clean")
   .description("Clean a transcript markdown file using the local LLM")
   .argument("<path>", "Path to a transcript .md file")
-  .option("-o, --output <path>", "Output path. <path>.clean.md by default")
-  .action(async (path: string, options: { output: string }) => {
-    await cleanTranscript(
-      path,
-      options.output ? resolve(options.output) : undefined,
-    );
-  });
+  .option("-o, --output [path]", "Output path. <path>.clean.md by default")
+  .action(
+    async (path: string, options: { output?: string; model?: string }) => {
+      if (path === "last") {
+        const lastTranscript = getLastTranscript();
+        if (!lastTranscript) {
+          console.log(`No transcripts found at ${config.get().outputDir}`);
+          process.exit(1);
+        }
+        path = lastTranscript;
+      }
+
+      if (!fs.existsSync(path)) {
+        console.log(`File does not exist: ${path}`);
+        process.exit(1);
+      }
+
+      await cleanTranscript(
+        path,
+        options.output ? resolve(options.output) : undefined,
+      );
+    },
+  );
 
 await program.parseAsync(process.argv);
+
+function getLastTranscript(): string | null {
+  const outputDir = config.get().outputDir;
+
+  if (!fs.existsSync(outputDir)) {
+    return null;
+  }
+
+  const byMtime = fs.readdirSync(outputDir).flatMap((name) => {
+    const full = join(outputDir, name);
+    try {
+      const st = fs.statSync(full);
+      if (!st.isFile()) return [];
+      return [{ name, mtime: st.mtimeMs }];
+    } catch {
+      return [];
+    }
+  });
+
+  byMtime.sort((a, b) => b.mtime - a.mtime);
+  const lastTranscript = byMtime[0]?.name;
+
+  return lastTranscript ? join(outputDir, lastTranscript) : null;
+}
 
 async function startSession(): Promise<void> {
   const { shutdown } = await start();
@@ -90,7 +155,6 @@ async function startSession(): Promise<void> {
         process.exit(1);
       }
 
-      await cleanTranscript(outputFile, cleanVersionPath);
       process.exit(0);
     })();
   });
@@ -119,7 +183,7 @@ async function cleanTranscript(
   }
 
   const resolvedPath = resolve(transcriptMdPath);
-  const cleanedTranscript = await summarize(resolvedPath);
+  const cleanedTranscript = await summarize(resolvedPath, config.get().llm);
 
   fs.writeFileSync(cleanVersionPath, cleanedTranscript);
 

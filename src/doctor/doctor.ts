@@ -1,10 +1,6 @@
 import path from "node:path";
 import { checkBlackHole } from "./blackhole";
-import {
-  assertOllamaModelPresent,
-  ensureOllamaServe,
-  OLLAMA_MODEL,
-} from "../summarize/ollama-local.ts";
+import { getModelFromId } from "../summarize/model";
 import { prompt } from "../summarize/summarize";
 import { spawn } from "bun";
 import * as p from "@clack/prompts";
@@ -88,41 +84,8 @@ async function checkDependencies(): Promise<void> {
   if (!blackholeOk) process.exit(1);
 }
 
-async function checkOllama(): Promise<void> {
-  const spinner = p.spinner();
-  spinner.start("Checking Ollama");
-
-  if (!(await commandExists("ollama", ["--version"]))) {
-    spinner.stop("Ollama check failed");
-    p.log.error(
-      `ollama not found:\n${indentLogBody("Install from https://ollama.com or: brew install ollama")}`,
-    );
-    process.exit(1);
-  }
-
-  try {
-    const managed = await ensureOllamaServe();
-    try {
-      await assertOllamaModelPresent(managed.origin, managed.openAiBaseUrl);
-      await prompt("Hello, world!");
-      //console.log(result);
-    } finally {
-      await managed.stopIfWeStarted();
-    }
-    spinner.stop("✓ Qwen2.5 14B ready");
-  } catch (e) {
-    spinner.stop("Ollama check failed");
-    const msg = e instanceof Error ? e.message : String(e);
-    p.log.error(
-      `${msg}\n${indentLogBody(`Pull the model if needed: ollama pull ${OLLAMA_MODEL}`)}`,
-    );
-    process.exit(1);
-  }
-}
-
 export async function doctor() {
   await checkDependencies();
-  await checkOllama();
 
   p.outro(
     "All checks passed. You're ready to transcribe! Run `listenin` to start.",
