@@ -1,6 +1,6 @@
 {
   "name": "@kvendrik/transcribe",
-  "description": "CLI to transcribe meetings",
+  "description": "CLI to transcribe and summarize digital meetings without the use of bots",
   "version": "0.1.0",
   "bin": {
     "listenin": "./bin/listen-in.ts"
