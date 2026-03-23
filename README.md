@@ -17,9 +17,12 @@ bun install -g @kvendrik/listen-in
 # 2. Helps you set up the audio driver so the CLI can capture what others say when on
 listenin doctor
 
-# Change default mic, transcriptions location, etc
+# Change default mic, transcriptions location, LLM preference
 listenin config
 
-# Transcribe your first meeting
-listenin
+# Transcribe a meeting
+listenin transcribe
+
+# Clean and summarize the last transcription
+listenin clean last
 ```

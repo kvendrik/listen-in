@@ -2,14 +2,18 @@
 
 import { Command } from "commander";
 import { join, resolve } from "node:path";
-import { listen, start, summarize, doctor, OLLAMA_MODEL } from "../src";
+import { listen, start, summarize, doctor } from "../src";
 import { description, version } from "../package.json";
 import * as p from "@clack/prompts";
 import * as fs from "node:fs";
 
 const program = new Command("listenin")
   .description(description)
-  .version(version)
+  .version(version);
+
+program
+  .command("transcribe")
+  .description("Transcribe a meeting")
   .action(async () => {
     await startSession();
   });
