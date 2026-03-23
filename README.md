@@ -1,10 +1,10 @@
-# 🎧 Listen in
+# 🎙️ `listenin`
 
-CLI to make it easy to locally transcribe digital meetings to MD files without the use of bots.
+CLI to transcribe and summarize digital meetings without the use of bots
 
 ## How it works
 
-Transcription and cleaning up of transcriptions + summarization happens entirely locally using a combination of [WhisperLive](https://github.com/collabora/WhisperLive), [BlackHole](https://github.com/existentialaudio/blackhole), and [Qwen2.5 14B](https://huggingface.co/Qwen/Qwen2.5-14B) (Ollama).
+Transcription and cleaning up of transcriptions + summarization happens using a combination of [WhisperLive](https://github.com/collabora/WhisperLive), [BlackHole](https://github.com/existentialaudio/blackhole), and a LLM of your choosing (Qwen 3 4B or Sonnet 4.6 based on if you want to do it locally or not).
 
 ## How to use
 
@@ -23,5 +23,3 @@ listenin config
 # Transcribe your first meeting
 listenin
 ```
-
-## Example Transcript
