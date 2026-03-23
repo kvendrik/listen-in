@@ -102,6 +102,7 @@ function getLastTranscript(): string | null {
     try {
       const st = fs.statSync(full);
       if (!st.isFile()) return [];
+      if (name.includes(".clean")) return [];
       return [{ name, mtime: st.mtimeMs }];
     } catch {
       return [];
