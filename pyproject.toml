@@ -1,0 +1,10 @@
+[project]
+name = "listen-in"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+  "whisper-live",
+  "fastapi",
+  "uvicorn[standard]",
+  "python-multipart",
+]

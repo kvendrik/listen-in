@@ -1,47 +1,27 @@
-# 🎙️ Transcribe
+# 🎧 Listen in
 
-Transcribe your meetings
+CLI to make it easy to locally transcribe digital meetings to MD files without the use of bots.
 
-## Getting started
+## How it works
 
-First run the doctor to get all dependencies installed:
+Transcription and cleaning up of transcriptions + summarization happens entirely locally using a combination of [WhisperLive](https://github.com/collabora/WhisperLive), [BlackHole](https://github.com/existentialaudio/blackhole), and [Qwen2.5 14B](https://huggingface.co/Qwen/Qwen2.5-14B) (Ollama).
 
-```
-bunx -p @kvendrik/transcribe transcribe doctor
-```
+## How to use
 
-Then, transcribe your first meeting:
-
-```
-bunx -p @kvendrik/transcribe transcribe -o meeting.md
+```bash
+bun install -g @kvendrik/listen-in
 ```
 
+```bash
+# 1. Walks you through making sure you have all dependencies installed
+# 2. Helps you set up the audio driver so the CLI can capture what others say when on
+listenin doctor
+
+# Change default mic, transcriptions location, etc
+listenin config
+
+# Transcribe your first meeting
+listenin
 ```
-●  @kvendrik/transcriber
 
-◆  Pick an audio device
-│  ● MacBook Pro Microphone
-└
-
-◆  Whisper model
-│  ● small — good balance (default)
-│  ○ medium — slower, better accuracy
-│  ...
-└
-
-⠸  Connecting to ws://localhost:9090
-✓  Model ready
-✔  Speak now — Ctrl-C to stop and save transcript.
-
-**Microphone:** So let's start with the roadmap.
-
-**Speaker:** Sure, sounds good to me.
-
-**Microphone:** First item is the Q2 priorities.
-
-**Speaker:** Can we also cover the infra migration?
-
-^ Ctrl
-
-●  Saved → meeting.md
-```
+## Example Transcript

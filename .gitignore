@@ -1,6 +1,10 @@
 # dependencies (bun install)
 node_modules
 
+# Python (uv)
+.venv
+.transcripts
+
 # output
 out
 dist
