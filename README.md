@@ -35,7 +35,7 @@ listenin config set llm openai:gpt-4.6
 
 ## Example
 
-```
+```bash
 > listenin transcribe
 ◇  Microphone
 │  Default Microphone
@@ -52,6 +52,14 @@ listenin config set llm openai:gpt-4.6
 |
 ◇  Ready at .transcripts/2026-03-23_18-25-07.clean.md
 ```
+
+Send the transcript to your AI agent for analysis and to take action. The `clean` task also asks the LLM to extract action items which will help your AI agent figure out what might need to be done. In my case I'd be sending it to [Greg](https://github.com/kvendrik/greg/):
+
+```bash
+cat .transcripts/2026-03-23_18-25-07.clean.md | greg tui -p "Analyze this transcript and tell me what you can take off my plate"
+```
+
+### `.transcripts/2026-03-23_18-25-07.clean.md`
 
 ```md
 # Q4 Priorities, Vendor Renewal & Analytics Rollout — March 23, 2026, 6:25 PM
