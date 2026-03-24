@@ -35,7 +35,7 @@ listenin config set llm openai:gpt-4.6
 
 ## Example
 
-```bash
+```
 > listenin transcribe
 ◇  Microphone
 │  Default Microphone
